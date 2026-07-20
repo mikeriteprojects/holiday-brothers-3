@@ -1,5 +1,6 @@
 import type { Answers } from "./types";
 import type { PriceBreakdown } from "@/lib/pricing";
+import { formatMoney } from "@/lib/format";
 
 type Props = {
   answers: Answers;
@@ -54,7 +55,7 @@ export function Confirmation({ answers, price, bookingCode }: Props) {
         <h2 className="text-display-md mt-1 text-foreground">Confirmation code: {bookingCode}</h2>
       </div>
       <p className="text-sm text-muted-foreground">
-        Estimated total: <strong className="text-foreground">${price.total.toFixed(2)}</strong> — you
+        Estimated total: <strong className="text-foreground">{formatMoney(price.total)}</strong> — you
         can log in any time at <span className="font-mono">/worker-login</span> with your username
         and password to track this booking.
       </p>
@@ -73,7 +74,7 @@ function PriceLines({ price }: { price: PriceBreakdown }) {
       {price.worker_pickup_discount > 0 && <Row label="Crew pickup discount" value={-price.worker_pickup_discount} />}
       <div className="mt-2 flex justify-between border-t border-border pt-2 font-semibold text-foreground">
         <span>Total</span>
-        <span>${price.total.toFixed(2)}</span>
+        <span>{formatMoney(price.total)}</span>
       </div>
     </div>
   );
@@ -83,7 +84,7 @@ function Row({ label, value }: { label: string; value: number }) {
   return (
     <div className="flex justify-between text-muted-foreground">
       <span>{label}</span>
-      <span>${value.toFixed(2)}</span>
+      <span>{formatMoney(value)}</span>
     </div>
   );
 }

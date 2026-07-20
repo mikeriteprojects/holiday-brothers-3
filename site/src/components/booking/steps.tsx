@@ -5,6 +5,7 @@ import type { Answers } from "./types";
 import { OptionCard } from "./option-card";
 import { geocodeAddress, isInServiceArea, type GeocodeResult } from "@/lib/service-area";
 import type { PricingRow } from "@/lib/backend";
+import { formatMoney } from "@/lib/format";
 
 type StepProps = {
   answers: Answers;
@@ -142,7 +143,7 @@ export function DeliveryStep({
           />
           <span>
             <span className="block font-semibold text-foreground">
-              Self-deliver{selfDeliveryAmount > 0 && ` — save $${selfDeliveryAmount.toFixed(2)}`}
+              Self-deliver{selfDeliveryAmount > 0 && ` — save ${formatMoney(selfDeliveryAmount)}`}
             </span>
             <span className="mt-0.5 block text-sm text-muted-foreground">
               Pick up the materials yourself and save.
@@ -158,7 +159,7 @@ export function DeliveryStep({
           />
           <span>
             <span className="block font-semibold text-foreground">
-              Pick up the crew{workerPickupAmount > 0 && ` — save $${workerPickupAmount.toFixed(2)}`}
+              Pick up the crew{workerPickupAmount > 0 && ` — save ${formatMoney(workerPickupAmount)}`}
             </span>
             <span className="mt-0.5 block text-sm text-muted-foreground">
               Save by bringing the crew to the job yourself.

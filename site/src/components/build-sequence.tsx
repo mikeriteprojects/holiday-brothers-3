@@ -75,8 +75,14 @@ function ScrollBuildSequence() {
   }, []);
 
   return (
-    <div ref={wrapperRef} style={{ height: "220vh" }}>
-      <div className="sticky top-24 mx-auto flex h-[60vh] max-w-2xl flex-col items-center justify-center">
+    // Shorter on narrow viewports so the same swipe distance finishes the
+    // build before it starts to feel like dragging. The sticky offset
+    // (top-28) is set to roughly match this section's natural resting
+    // position right below the nav, so there's no visible pre-pin drift —
+    // it reads as pinned from the first frame of scroll, not "settling"
+    // into place. top-28 also doubles as breathing room above the model.
+    <div ref={wrapperRef} className="h-[130vh] sm:h-[160vh] lg:h-[200vh]">
+      <div className="sticky top-28 mx-auto flex h-[55vh] max-w-2xl flex-col items-center justify-center sm:h-[60vh]">
         <SukkahScene stage={stage} sukkahType="Construction" className="h-full w-full" />
         <p className="text-eyebrow mt-4">Construction, built beat by beat as you scroll</p>
       </div>

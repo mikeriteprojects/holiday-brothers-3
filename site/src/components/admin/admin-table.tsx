@@ -1,3 +1,5 @@
+import { formatMoney } from "@/lib/format";
+
 // Shared list-view pattern reused across every /admin/<section> page: a
 // plain data table plus an optional per-row action slot. One reference
 // implementation (used first in /admin/bookings), repeated for the rest
@@ -9,7 +11,7 @@ export function AdminTable<T extends Record<string, unknown>>({
   emptyLabel = "Nothing here yet.",
 }: {
   rows: T[];
-  columns: { key: string; label: string }[];
+  columns: { key: string; label: string; money?: boolean }[];
   renderActions?: (row: T) => React.ReactNode;
   emptyLabel?: string;
 }) {
@@ -35,7 +37,9 @@ export function AdminTable<T extends Record<string, unknown>>({
             <tr key={i} className="border-b border-border last:border-0">
               {columns.map((c) => (
                 <td key={c.key} className="whitespace-nowrap px-4 py-2 text-foreground">
-                  {String(row[c.key] ?? "")}
+                  {c.money && row[c.key] !== undefined && row[c.key] !== ""
+                    ? formatMoney(Number(row[c.key]))
+                    : String(row[c.key] ?? "")}
                 </td>
               ))}
               {renderActions && <td className="px-4 py-2 text-right">{renderActions(row)}</td>}

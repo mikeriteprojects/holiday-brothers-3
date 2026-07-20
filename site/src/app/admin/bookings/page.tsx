@@ -69,7 +69,7 @@ export default function AdminBookingsPage() {
           { key: "sukkah_type", label: "Type" },
           { key: "speed_tier", label: "Speed" },
           { key: "status", label: "Status" },
-          { key: "price_total", label: "Total" },
+          { key: "price_total", label: "Total", money: true },
         ]}
         renderActions={(row) => (
           <div className="flex justify-end gap-2">

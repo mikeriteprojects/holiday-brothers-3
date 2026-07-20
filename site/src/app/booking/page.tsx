@@ -19,6 +19,7 @@ import {
 } from "@/components/booking/steps";
 import { Confirmation } from "@/components/booking/confirmation";
 import { calculatePrice, type PriceBreakdown } from "@/lib/pricing";
+import { formatMoney } from "@/lib/format";
 import { getPricing, submitBooking, workerSetPassword, type PricingRow } from "@/lib/backend";
 import { setSession } from "@/lib/session";
 
@@ -231,34 +232,34 @@ export default function BookingPage() {
           />
           <div className="rounded-xl border border-border bg-card p-5">
             <p className="text-eyebrow">Live estimate</p>
-            <p className="mt-2 text-3xl font-display text-foreground">${price.total.toFixed(2)}</p>
+            <p className="mt-2 text-3xl font-display text-foreground">{formatMoney(price.total)}</p>
             <dl className="mt-3 space-y-1 text-sm text-muted-foreground">
               <div className="flex justify-between">
                 <dt>Base</dt>
-                <dd>${price.base.toFixed(2)}</dd>
+                <dd>{formatMoney(price.base)}</dd>
               </div>
               <div className="flex justify-between">
                 <dt>Size</dt>
-                <dd>${price.size_mod.toFixed(2)}</dd>
+                <dd>{formatMoney(price.size_mod)}</dd>
               </div>
               <div className="flex justify-between">
                 <dt>Speed</dt>
-                <dd>${price.speed_mod.toFixed(2)}</dd>
+                <dd>{formatMoney(price.speed_mod)}</dd>
               </div>
               <div className="flex justify-between">
                 <dt>Type</dt>
-                <dd>${price.type_mod.toFixed(2)}</dd>
+                <dd>{formatMoney(price.type_mod)}</dd>
               </div>
               {price.self_delivery_discount > 0 && (
                 <div className="flex justify-between text-primary">
                   <dt>Self-delivery discount</dt>
-                  <dd>-${price.self_delivery_discount.toFixed(2)}</dd>
+                  <dd>{formatMoney(-price.self_delivery_discount)}</dd>
                 </div>
               )}
               {price.worker_pickup_discount > 0 && (
                 <div className="flex justify-between text-primary">
                   <dt>Crew pickup discount</dt>
-                  <dd>-${price.worker_pickup_discount.toFixed(2)}</dd>
+                  <dd>{formatMoney(-price.worker_pickup_discount)}</dd>
                 </div>
               )}
             </dl>

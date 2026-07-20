@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { getBookingStatus, type BookingRow } from "@/lib/backend";
+import { formatMoney } from "@/lib/format";
 
 // The customer-facing lookup UserJourney.md §2.4 resolves to build — guests
 // can check status without fully logging in, using the backend's existing
@@ -76,7 +77,7 @@ export default function TrackBookingPage() {
             {booking.size} {booking.sukkah_type} · {booking.speed_tier}
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">{booking.address}</p>
-          <p className="mt-2 text-sm text-foreground">Total: ${Number(booking.price_total).toFixed(2)}</p>
+          <p className="mt-2 text-sm text-foreground">Total: {formatMoney(Number(booking.price_total))}</p>
         </div>
       )}
     </div>

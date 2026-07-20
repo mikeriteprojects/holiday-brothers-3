@@ -21,7 +21,10 @@ export function TransitionLink({
   function handleClick(e: React.MouseEvent<HTMLAnchorElement>) {
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return; // let cmd/ctrl-click open in new tab normally
     e.preventDefault();
-    window.dispatchEvent(new CustomEvent("hb-transition", { detail: { kind, href } }));
+    const rect = e.currentTarget.getBoundingClientRect();
+    const originX = rect.left + rect.width / 2;
+    const originY = rect.top + rect.height / 2;
+    window.dispatchEvent(new CustomEvent("hb-transition", { detail: { kind, href, originX, originY } }));
   }
 
   return (

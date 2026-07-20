@@ -4,10 +4,11 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 type Kind = "esrog" | "lulav";
+type TriggerDetail = { kind: Kind; href: string; originX: number; originY: number };
 
 function EsrogShape() {
   return (
-    <svg viewBox="0 0 140 220" className="esrog-anim h-56 w-36 drop-shadow-2xl" aria-hidden>
+    <svg viewBox="0 0 140 220" className="h-40 w-24 drop-shadow-2xl sm:h-56 sm:w-36" aria-hidden>
       <defs>
         <radialGradient id="esrogGrad" cx="35%" cy="30%" r="75%">
           <stop offset="0%" stopColor="#f5e98a" />
@@ -29,53 +30,66 @@ function EsrogShape() {
   );
 }
 
+// A single tall, tapered frond silhouette (not a rickety spine-and-twigs
+// assembly) — reads clearly as a lulav even at speed, with a bound base
+// like the reference photo.
 function LulavShape() {
   return (
-    <svg viewBox="0 0 160 420" className="lulav-anim h-[70vh] w-auto drop-shadow-2xl" aria-hidden>
+    <svg viewBox="0 0 200 520" className="h-[36vh] w-auto drop-shadow-2xl sm:h-[46vh]" aria-hidden>
       <defs>
-        <linearGradient id="lulavSpine" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#4d8a3f" />
-          <stop offset="100%" stopColor="#3a6b2f" />
+        <linearGradient id="lulavBody" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="#2f5424" />
+          <stop offset="45%" stopColor="#5a9c4a" />
+          <stop offset="55%" stopColor="#5a9c4a" />
+          <stop offset="100%" stopColor="#2f5424" />
         </linearGradient>
       </defs>
-      {/* central spine */}
-      <rect x="74" y="10" width="12" height="360" rx="4" fill="url(#lulavSpine)" />
-      {[0, 1, 2, 3, 4, 5].map((i) => (
-        <rect key={i} x="66" y={60 + i * 55} width="28" height="6" rx="3" fill="#2f5424" />
-      ))}
-      {/* fanning leaflets, alternating sides */}
-      {Array.from({ length: 16 }).map((_, i) => {
+      {/* main frond body — one clean tapered blade */}
+      <path
+        d="M100 8
+           C 130 90, 148 220, 128 420
+           C 122 460, 112 486, 100 508
+           C 88 486, 78 460, 72 420
+           C 52 220, 70 90, 100 8 Z"
+        fill="url(#lulavBody)"
+      />
+      {/* center rib */}
+      <path d="M100 20 L100 500" stroke="#1f3d18" strokeWidth="4" opacity="0.55" />
+      {/* fine texture strokes fanning off the rib */}
+      {Array.from({ length: 18 }).map((_, i) => {
+        const y = 60 + i * 24;
         const side = i % 2 === 0 ? -1 : 1;
-        const y = 40 + Math.floor(i / 2) * 42;
-        const len = 60 - Math.floor(i / 2) * 3;
         return (
-          <path
+          <line
             key={i}
-            d={`M80 ${y} Q${80 + side * len * 0.6} ${y + 10} ${80 + side * len} ${y + 30}`}
-            stroke="#5a9c4a"
-            strokeWidth="7"
-            strokeLinecap="round"
-            fill="none"
+            x1={100}
+            y1={y}
+            x2={100 + side * 26}
+            y2={y + 16}
+            stroke="#1f3d18"
+            strokeWidth="1.5"
+            opacity="0.35"
           />
         );
       })}
-      {/* binding at the base */}
-      <rect x="64" y="360" width="32" height="26" rx="4" fill="#7a5a34" />
+      {/* woven binding wrap near the base */}
+      <rect x="76" y="430" width="48" height="34" rx="6" fill="#8a5a34" />
+      <rect x="76" y="452" width="48" height="8" rx="3" fill="#6d4527" />
     </svg>
   );
 }
 
 export function TransitionOverlay() {
   const router = useRouter();
-  const [active, setActive] = useState<{ kind: Kind } | null>(null);
+  const [active, setActive] = useState<TriggerDetail | null>(null);
   const timeouts = useRef<number[]>([]);
 
   useEffect(() => {
     function onTrigger(e: Event) {
-      const detail = (e as CustomEvent<{ kind: Kind; href: string }>).detail;
-      setActive({ kind: detail.kind });
-      const navDelay = detail.kind === "esrog" ? 550 : 600;
-      const clearDelay = detail.kind === "esrog" ? 950 : 950;
+      const detail = (e as CustomEvent<TriggerDetail>).detail;
+      setActive(detail);
+      const navDelay = detail.kind === "esrog" ? 750 : 700;
+      const clearDelay = detail.kind === "esrog" ? 1150 : 1000;
       const navTimer = window.setTimeout(() => router.push(detail.href), navDelay);
       const clearTimer = window.setTimeout(() => setActive(null), clearDelay);
       timeouts.current.push(navTimer, clearTimer);
@@ -92,13 +106,16 @@ export function TransitionOverlay() {
   if (!active) return null;
 
   return (
-    <div className="pointer-events-none fixed inset-0 z-[100] overflow-hidden">
+    <div className="pointer-events-none fixed inset-0 z-[100] overflow-hidden" style={{ perspective: "800px" }}>
       {active.kind === "esrog" ? (
-        <div className="absolute left-0 top-1/2 -translate-y-1/2">
+        <div
+          className="esrog-anim absolute"
+          style={{ left: active.originX, top: active.originY, transform: "translate(-50%, -50%)" }}
+        >
           <EsrogShape />
         </div>
       ) : (
-        <div className="absolute left-1/2 top-0 -translate-x-1/2">
+        <div className="lulav-anim absolute left-1/2 top-0">
           <LulavShape />
         </div>
       )}

@@ -245,20 +245,37 @@ function Door({
 // shapes (varied blade count/spread/length) keeps them from looking
 // identical; a jittered grid (not pure random scatter) gives full,
 // gap-free coverage across the roof.
+// Each blade is a blunt-tipped quad (base-left, base-right, tip-right,
+// tip-left) rather than a needle-sharp triangle — reads as a rounded leaf
+// blade, not a spike.
 function frondGeometry(bladeCount: number, spread: number, length: number) {
   const positions: number[] = [];
+  const indices: number[] = [];
+  let vertIndex = 0;
   for (let i = 0; i < bladeCount; i++) {
     const t = bladeCount === 1 ? 0 : i / (bladeCount - 1) - 0.5;
     const angle = t * spread;
-    const len = length * (0.75 + 0.4 * Math.cos(t * Math.PI));
+    const len = length * (0.8 + 0.35 * Math.cos(t * Math.PI));
     const dirX = Math.sin(angle);
     const dirY = Math.cos(angle);
-    const perpX = -dirY * 0.03;
-    const perpY = dirX * 0.03;
-    positions.push(-perpX, -perpY, 0, perpX, perpY, 0, dirX * len, dirY * len, 0);
+    const perpX = -dirY * 0.036;
+    const perpY = dirX * 0.036;
+    const tipPerpX = -dirY * 0.014;
+    const tipPerpY = dirX * 0.014;
+    const tipX = dirX * len;
+    const tipY = dirY * len;
+    positions.push(
+      -perpX, -perpY, 0,
+      perpX, perpY, 0,
+      tipX + tipPerpX, tipY + tipPerpY, 0,
+      tipX - tipPerpX, tipY - tipPerpY, 0
+    );
+    indices.push(vertIndex, vertIndex + 1, vertIndex + 2, vertIndex, vertIndex + 2, vertIndex + 3);
+    vertIndex += 4;
   }
   const geo = new THREE.BufferGeometry();
   geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geo.setIndex(indices);
   geo.computeVertexNormals();
   return geo;
 }
@@ -281,8 +298,9 @@ function Schach({ opacity }: { opacity: number }) {
   // Jittered grid across the roof — every cell gets a frond, so the top is
   // fully covered with no gaps, while jitter + a varied pool keeps it from
   // reading as a repeated tile.
-  const cols = 13;
-  const rows = 10;
+  const cols = 15;
+  const rows = 12;
+  const ROOF_OVERHANG = 1.1;
   const instances = useMemo(() => {
     const arr: {
       position: [number, number, number];
@@ -295,12 +313,12 @@ function Schach({ opacity }: { opacity: number }) {
     for (let c = 0; c < cols; c++) {
       for (let r = 0; r < rows; r++) {
         i++;
-        const cellW = (WIDTH + 0.6) / cols;
-        const cellD = (DEPTH + 0.6) / rows;
+        const cellW = (WIDTH + ROOF_OVERHANG) / cols;
+        const cellD = (DEPTH + ROOF_OVERHANG) / rows;
         const jitterX = (seededRandom(i * 3 + 1) - 0.5) * cellW * 0.9;
         const jitterZ = (seededRandom(i * 3 + 2) - 0.5) * cellD * 0.9;
-        const x = -((WIDTH + 0.6) / 2) + (c + 0.5) * cellW + jitterX;
-        const z = -((DEPTH + 0.6) / 2) + (r + 0.5) * cellD + jitterZ;
+        const x = -((WIDTH + ROOF_OVERHANG) / 2) + (c + 0.5) * cellW + jitterX;
+        const z = -((DEPTH + ROOF_OVERHANG) / 2) + (r + 0.5) * cellD + jitterZ;
         arr.push({
           position: [x, HEIGHT + 0.03 + seededRandom(i * 3 + 3) * 0.08, z],
           rotation: [
@@ -310,7 +328,9 @@ function Schach({ opacity }: { opacity: number }) {
             seededRandom(i * 7 + 2) * Math.PI * 2,
             0,
           ],
-          scale: 1.5 + seededRandom(i * 7 + 3) * 1.0,
+          // Bigger + more overlap than a tight tile grid, so there's no
+          // visible gap between neighboring fronds at any angle.
+          scale: 2.1 + seededRandom(i * 7 + 3) * 1.1,
           hue: seededRandom(i * 7 + 4),
           poolIndex: Math.floor(seededRandom(i * 7 + 5) * FROND_POOL_CONFIGS.length),
         });

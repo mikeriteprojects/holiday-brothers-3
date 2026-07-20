@@ -101,7 +101,7 @@ export default function AdminJobsPage() {
           { key: "job_type", label: "Type" },
           { key: "date", label: "Date" },
           { key: "status", label: "Status" },
-          { key: "total_cost", label: "Cost" },
+          { key: "total_cost", label: "Cost", money: true },
         ]}
         emptyLabel="No jobs yet."
       />
