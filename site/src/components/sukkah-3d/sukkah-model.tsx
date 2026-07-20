@@ -394,7 +394,11 @@ export function SukkahModel({
   const segWidth = (WIDTH - DOOR_W) / 2;
 
   return (
-    <group ref={group}>
+    // Vertical offset keeps the model's mass (mostly above y=0) centered in
+    // the default camera's look-at frame, instead of top-heavy against it —
+    // the schach roof was riding the top edge of the frustum and getting a
+    // hard straight-line crop on short/wide containers.
+    <group ref={group} position={[0, -1.3, 0]}>
       <Post x={corners.bl[0]} z={corners.bl[1]} />
       <Post x={corners.br[0]} z={corners.br[1]} />
       <Post x={corners.fl[0]} z={corners.fl[1]} />
