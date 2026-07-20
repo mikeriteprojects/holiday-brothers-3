@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
-import { getContent, type ContentRow } from "@/lib/backend";
-import { ClosingCta } from "@/components/homepage/closing-cta";
+import { AboutContent } from "./about-content";
 
 // Statically generated from Content blocks (block_id convention:
 // about_<slug>_title / about_<slug>_subtitle / about_<slug>_body), same type
@@ -31,43 +30,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return { title: `${fallback.title} — Holiday Brothers`, description: fallback.subtitle };
 }
 
-function blockValue(rows: ContentRow[], blockId: string, fallback: string): string {
-  return rows.find((r) => r.block_id === blockId)?.value || fallback;
-}
-
 export default async function AboutPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const fallback = DEFAULTS[slug];
   if (!fallback) notFound();
 
-  let contentRows: ContentRow[] = [];
-  try {
-    const res = await getContent();
-    contentRows = res.ok ? res.rows : [];
-  } catch {
-    contentRows = [];
-  }
-
-  const title = blockValue(contentRows, `about_${slug}_title`, fallback.title);
-  const subtitle = blockValue(contentRows, `about_${slug}_subtitle`, fallback.subtitle);
-  const bodyRaw = blockValue(contentRows, `about_${slug}_body`, fallback.body.join("\n\n"));
-  const paragraphs = bodyRaw.split("\n\n").filter(Boolean);
-
-  return (
-    <div className="flex flex-col">
-      <section className="mx-auto max-w-3xl px-6 pt-16 pb-8">
-        <p className="text-eyebrow">About</p>
-        <h1 className="text-display-xl mt-3 text-foreground">{title}</h1>
-        <p className="mt-4 text-lg text-muted-foreground">{subtitle}</p>
-        <div className="mt-8 space-y-4 text-foreground">
-          {paragraphs.map((p, i) => (
-            <p key={i} className="leading-relaxed">
-              {p}
-            </p>
-          ))}
-        </div>
-      </section>
-      <ClosingCta />
-    </div>
-  );
+  return <AboutContent slug={slug} fallback={fallback} />;
 }
